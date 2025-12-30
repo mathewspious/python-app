@@ -1,0 +1,10 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: python-app
+spec:
+  selector:
+    app: python-app
+  ports:
+    - port: 80
+      targetPort: 5001
