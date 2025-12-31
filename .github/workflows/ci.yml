@@ -1,4 +1,4 @@
-name: ci
+name: cicd
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
       - main
 
 jobs:
-  docker:
+  ci:
     runs-on: [self-hosted, linux, ARM64]
     steps:
       - name: Checkout code
@@ -30,3 +30,14 @@ jobs:
         with:
           push: true
           tags: mathewspious/python-app:${{env.COMMIT_SHORT_SHA}}
+  cd:
+    needs: ci
+    run-on: self-hosted
+    steps:
+      - name: Agrocd App Sync
+        shell: bash
+        run: |
+          argocd login argocd-server.argocd \
+          --insecure --grpc-web \
+          --username admin --password ${{secrets.ARGOCD_SECRET}}
+          argocd app sync python-app
