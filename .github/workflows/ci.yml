@@ -16,18 +16,8 @@ jobs:
         with:
           username: ${{secrets.DOCKERHUB_USERNAME}}
           password: ${{secrets.DOCKERHUB_TOKEN}}
-      - name: Extract Docker metadata
-        id: meta
-        uses: docker/metadata-actions@v5
-        with:
-          images: |
-            mathewspious/python-app
-          tags: |
-            type=sha,format=short
-            type=latest
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
           push: true
-          tags: ${{steps.meta.outputs.tags}}
-          labels: ${{ steps.meta.outputs.labels}}
+          tags: mathewspious/python-app:${{github.sha}}
