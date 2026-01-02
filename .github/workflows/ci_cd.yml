@@ -28,10 +28,26 @@ jobs:
         with:
           push: true
           tags: mathewspious/python-app:${{env.COMMIT_SHORT_SHA}}
+    outputs:
+      commit_id: ${{env.COMMIT_SHORT_SHA}}
   cd:
     needs: ci
     runs-on: self-hosted
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Modify value file
+        shell: bash
+        run: | 
+          echo ${{ needs.ci.outputs.commit_id }}
+          curl -sSL -o ~/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          chmod +x ~/yq
+          sudo mv ~/yq /usr/loca/bin/
+          yq -Yi '.image.tag = "${{ needs.ci.outputs.commit_id }}"' charts/python-app/values.yaml
+      - name: Commit changes
+        uses: EndBug/add-and-commit@v9
+        with:
+          message: 'Updates values.yaml with commit ${{ needs.ci.outputs.commit_id }}'
       - name: Install Argo CD
         shell: bash
         run: |
